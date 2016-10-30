@@ -27,6 +27,7 @@ public class MyBehaviorTree : MonoBehaviour
     void Start()
     {
         behaviorAgent = new BehaviorAgent(this.Talking());
+        behaviorAgent1 = new BehaviorAgent(this.Texting());
         BehaviorManager.Instance.Register(behaviorAgent);
         behaviorAgent.StartBehavior();
     }
@@ -115,6 +116,9 @@ public class MyBehaviorTree : MonoBehaviour
                         CrowdGather4("HEADSHAKE")
                        )));
     }
-    
+    protected Node Texting()
+    {
+
+    }
 
 }
