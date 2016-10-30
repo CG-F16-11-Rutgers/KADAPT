@@ -9,6 +9,8 @@ public class Behavior_Drink : MonoBehaviour {
     //public Transform wander3;
     public GameObject participant;
     public GameObject drink;
+    public GameObject door;
+    public Transform doorOpenPoint;
 
     private BehaviorAgent behaviorAgent;
     // Use this for initialization
@@ -24,11 +26,20 @@ public class Behavior_Drink : MonoBehaviour {
 
     protected Node ST_ApproachAndWait(Transform target) {
         Val<Vector3> position = Val.V(() => target.position);
-        return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(5000));
+    }
+
+    protected Node ST_Approach(Transform target) {
+        Val<Vector3> position = Val.V(() => target.position);
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position));
     }
 
     protected Node ST_WaitRandom(long min, long max) {
         return new Sequence(new LeafWait((long)(((max - min) * UnityEngine.Random.value) + min)));
+    }
+
+    protected Node ST_Wait(long t) {
+        return new Sequence(new LeafWait(t));
     }
 
     protected Node ST_PickupObject(GameObject target) {
@@ -48,17 +59,29 @@ public class Behavior_Drink : MonoBehaviour {
         return new Sequence(participant.GetComponent<BehaviorMecanim>().ST_PlayFaceGesture(name, 3000));
     }
 
+    protected Node ST_OpenDoor() {
+        Val<String> name = Val.V(() => "POINTING");
+        if (door.GetComponent<DoorScript>().isOpen()) {
+            return new Sequence();
+        }
+        else {
+            return new Sequence(participant.GetComponent<BehaviorMecanim>().ST_PlayHandGesture(name, 500), new LeafInvoke(() => door.GetComponent<DoorScript>().openDoor()));
+        }
+    }
+
     protected Node BuildTreeRoot() {
-        Node roaming = 
+        Node roaming =
             new Sequence(
                 //ST_PickupObject(drink),
-                ST_Sit(),
-                new DecoratorLoop(
-                    new Sequence(
-                        ST_WaitRandom(2000, 6000),
-                        this.ST_Drink()
-                )),
-                ST_Stand());
+                //ST_Sit(),
+                ST_Approach(doorOpenPoint),
+                //new DecoratorLoop(
+                //new Sequence(
+                //ST_WaitRandom(2000, 6000),
+                //ST_Drink();
+                //)),
+                ST_OpenDoor());
+                //ST_Stand()
         return roaming;
     }
 }

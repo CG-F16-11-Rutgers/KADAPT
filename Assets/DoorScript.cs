@@ -10,16 +10,30 @@ public class DoorScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        open = true;
+        closedRot = transform.rotation;
+        openRot = Quaternion.Euler(0.0f, 90.0f, 0.0f);
+        open = false;
 	}
+
+    public bool isOpen() {
+        return open;
+    }
+
+    public void openDoor() {
+        open = true;
+    }
+
+    public void closeDoor() {
+        open = false;
+    }
 	
 	// Update is called once per frame
 	void Update () {
 	    if(open) {
-            transform.rotation = Quaternion.Slerp(transform.rotation, openRot, 0.001f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, openRot, 0.1f);
         }
         else {
-            transform.rotation = Quaternion.Slerp(transform.rotation, closedRot, 0.2f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, closedRot, 0.1f);
         }
 	}
 }
