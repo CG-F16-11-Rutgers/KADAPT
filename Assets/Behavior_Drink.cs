@@ -32,20 +32,32 @@ public class Behavior_Drink : MonoBehaviour {
     }
 
     protected Node ST_WaitRandom(long min, long max) {
-        return new Sequence(new LeafWait((long)((max - min) * UnityEngine.Random.value + min)));
+        return new Sequence(new LeafWait((long)(((max - min) * UnityEngine.Random.value) + min)));
+    }
+
+    protected Node ST_Sit() {
+        return new Sequence(new LeafInvoke(() => participant.GetComponent<BehaviorMecanim>().Character.SitDown()));
+    }
+
+    protected Node ST_Stand() {
+        return new Sequence(new LeafInvoke(() => participant.GetComponent<BehaviorMecanim>().Character.StandUp()));
     }
 
     protected Node ST_Drink() {
         Val<String> name = Val.V(() => "DRINK");
-        return new Sequence(participant.GetComponent<BehaviorMecanim>().ST_PlayFaceGesture(name, 1000));
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().ST_PlayFaceGesture(name, 3000));
     }
 
     protected Node BuildTreeRoot() {
-        Node roaming = new DecoratorLoop(
+        Node roaming = 
             new Sequence(
-                //ST_WaitRandom(1000, 5000),
-                this.ST_Drink()
-                ));
+                ST_Sit(),
+                new DecoratorLoop(
+                    new Sequence(
+                        ST_WaitRandom(2000, 6000),
+                        this.ST_Drink()
+                )),
+                ST_Stand());
         return roaming;
     }
 }
