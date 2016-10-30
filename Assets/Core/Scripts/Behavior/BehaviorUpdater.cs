@@ -2,7 +2,8 @@
 using System;
 using System.Collections;
 
-
+/*Object responsible for ticking all the trees, the overall clock generator.
+ * Runs the updater for behavior manager*/
 public class BehaviorUpdater : MonoBehaviour
 {
     public float updateTime = 0.05f;
