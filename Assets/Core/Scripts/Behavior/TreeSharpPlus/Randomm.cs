@@ -3,29 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TreeSharpPlus
-{
-    public class Randomm : NodeGroupWeighted
-    {
+namespace TreeSharpPlus {
+    public class Randomm : NodeGroupWeighted {
         public Randomm(params NodeWeight[] weightedchildren)
-            : base(weightedchildren)
-        {
+            : base(weightedchildren) {
         }
 
         public Randomm(params Node[] children)
-            : base(children)
-        {
+            : base(children) {
         }
 
-        public override void Start()
-        {
+        public override void Start() {
             this.Shuffle();
             base.Start();
 
         }
 
-        public override IEnumerable<RunStatus> Execute()
-        {
+        public override IEnumerable<RunStatus> Execute() {
             // Proceed as we do with the original sequence
             Node node = this.Children.First();
 
@@ -45,8 +39,7 @@ namespace TreeSharpPlus
             this.Selection.ClearLastStatus();
             this.Selection = null;
 
-            if (result == RunStatus.Failure)
-            {
+            if (result == RunStatus.Failure) {
                 yield return RunStatus.Failure;
                 yield break;
             }
