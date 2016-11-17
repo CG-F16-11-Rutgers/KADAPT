@@ -101,7 +101,7 @@ public class MyBehaviorTree1 : MonoBehaviour
                             )
                         ,
                         //makes everyone stay IDLE
-                        new Sequence(new Sequence(faceOpponent(w1,w2)))));
+                        new Sequence(new DecoratorLoop(new LeafWait(1000)))));
         
 		return roaming;
 	}
@@ -109,13 +109,18 @@ public class MyBehaviorTree1 : MonoBehaviour
     private Node createRandomFightInteraction(GameObject redGuy, GameObject greenGuy, int winner)
     {
         System.Random rnd = new System.Random();
-        int maximumPunches = 6;
+        int maximumPunches = 7;
 
         int fightLength = rnd.Next(0, maximumPunches + 1); // creates a number between 0 and maximumPunches
 
-        Node[] redParas = new Node[fightLength+1];
-        Node[] greenParas = new Node[fightLength+1];
-        
+        return fightInteractionHelper(redGuy,  greenGuy, winner, rnd,fightLength);
+       
+    }
+    private Node fightInteractionHelper(GameObject redGuy, GameObject greenGuy, int winner, System.Random rnd, int fightLength)
+    {
+        Node[] redParas = new Node[fightLength + 1];
+        Node[] greenParas = new Node[fightLength + 1];
+
         for (int a = 0; a < fightLength; a++)
         {
             int moveType = rnd.Next(0, 2);
@@ -124,7 +129,7 @@ public class MyBehaviorTree1 : MonoBehaviour
             if (moveType == 0)
             {
                 redParas[a] = punch(redGuy);
-                greenParas[a]= getsHit(greenGuy);
+                greenParas[a] = getsHit(greenGuy);
             }
             //green guy punches, red guy gets hit
             else if (moveType == 1)
@@ -135,7 +140,7 @@ public class MyBehaviorTree1 : MonoBehaviour
         }
 
         //red guys wins the fight
-        if(winner==0)
+        if (winner == 0)
         {
             redParas[fightLength] = performFinishingMove(redGuy);
             greenParas[fightLength] = die(greenGuy);
@@ -148,7 +153,6 @@ public class MyBehaviorTree1 : MonoBehaviour
 
         return new SequenceParallel(new Sequence(redParas), new Sequence(greenParas));
     }
-    
     private Node performFinishingMove(GameObject guy)
     {
         Val<string> name = Val.V(() => "PICKUPLEFT");
