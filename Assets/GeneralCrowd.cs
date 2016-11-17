@@ -62,6 +62,7 @@ public class GeneralCrowd : MonoBehaviour
         Val<Vector3> position = Val.V(() => target.position);
         return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
     }
+
     protected Node ST_ApproachAndWait4(Transform target)
     {
         Val<Vector3> position = Val.V(() => target.position);
