@@ -10,45 +10,33 @@ public class CrowdInBar : MonoBehaviour {
     public Transform point2;
     public GameObject bartender;
     public GameObject table;
-    private BehaviorAgent bartenderBehaviorAgent;
 
     //Two people talking
     public GameObject personTalk1;
     public GameObject personTalk2;
-    private BehaviorAgent talkingAgent;
 
     //Sitting guy
     public GameObject sittingGuy1;
     public GameObject sittingGuy2;
-    private BehaviorAgent sittingAgent;
-
+    public GameObject sittingGuy3;
+    public GameObject sittingGuy4;
+    public GameObject sittingGuy5;
+    public GameObject sittingGuy6;
+ 
     //Dancers
     public GameObject dancer1;
     public GameObject dancer2;
     public GameObject dancer3;
     public GameObject danceTarget;
-    private BehaviorAgent dancingAgent;
+
+    //Merged Behavior
+    private BehaviorAgent crowdBehavior;
 
     void Start () {
-        //Initializing the bartender
-        bartenderBehaviorAgent = new BehaviorAgent(this.WalkAroundBar());
-        BehaviorManager.Instance.Register(bartenderBehaviorAgent);
-        bartenderBehaviorAgent.StartBehavior();
-
-        //Initialize talking people
-        talkingAgent = new BehaviorAgent(this.Talk());
-        BehaviorManager.Instance.Register(talkingAgent);
-        talkingAgent.StartBehavior();
-
-        //Initialize the sitting guy
-        sittingAgent = new BehaviorAgent(this.Sit());
-        BehaviorManager.Instance.Register(sittingAgent);
-        sittingAgent.StartBehavior();
-
-        //Initialize the dancers
-        dancingAgent = new BehaviorAgent(this.DanceForever());
-        BehaviorManager.Instance.Register(dancingAgent);
-        dancingAgent.StartBehavior();
+        //Initialize the merged behavior
+        crowdBehavior = new BehaviorAgent(this.CrowdBehavior());
+        BehaviorManager.Instance.Register(crowdBehavior);
+        crowdBehavior.StartBehavior();
     }
 	
 	// Update is called once per frame
@@ -122,9 +110,17 @@ public class CrowdInBar : MonoBehaviour {
         return new Sequence(
                         ST_Sit(sittingGuy1),
                         ST_Sit(sittingGuy2),
-                        new DecoratorLoop( new Sequence(
+                        ST_Sit(sittingGuy3),
+                        ST_Sit(sittingGuy4),
+                        ST_Sit(sittingGuy5),
+                        ST_Sit(sittingGuy6),
+                        new DecoratorLoop( new Randomm(
                             FaceGesture(sittingGuy1, "DRINK"),
-                            FaceGesture(sittingGuy2, "DRINK"))));
+                            FaceGesture(sittingGuy2, "DRINK"),
+                            FaceGesture(sittingGuy3, "DRINK"),
+                            FaceGesture(sittingGuy4, "DRINK"),
+                            FaceGesture(sittingGuy5, "DRINK"),
+                            FaceGesture(sittingGuy6, "DRINK"))));
     }
     //Dancers
     protected Node DanceForever()
@@ -144,5 +140,16 @@ public class CrowdInBar : MonoBehaviour {
                         HandGesture(dancer2, "CLAP")),
                    new Randomm(HandGesture(dancer3, "SATNIGHTFEVER"),
                         HandGesture(dancer3, "CLAP")))));
+    }
+
+
+    //Merge all trees into one
+    protected Node CrowdBehavior()
+    {
+        return new DecoratorLoop(new SequenceParallel(
+                            WalkAroundBar(),
+                            Talk(),
+                            Sit(),
+                            DanceForever()));
     }
 }
