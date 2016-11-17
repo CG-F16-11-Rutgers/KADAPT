@@ -60,7 +60,11 @@ public class CrowdInBar : MonoBehaviour {
         return new Sequence(participant.GetComponent<BehaviorMecanim>().ST_PlayFaceGesture(name, 4000));
     }
 
-    ///Bartender Tree
+    /// <summary>
+    /// This is where the person actions are defined
+    /// </summary>
+    /// <returns></returns>
+    //Bartender Tree
     protected Node walkAroundBar()
     {
         return new DecoratorLoop(new Sequence(
@@ -72,17 +76,23 @@ public class CrowdInBar : MonoBehaviour {
                                  FaceGesture(bartender, "HEADSHAKE")
                                  ));
     }
-
+    //Two people talking
     protected Node talk()
     {
         return new DecoratorLoop(
-             new Sequence(
-                 ST_TurnToFace(personTalk1, personTalk2.transform.position),
-                 ST_TurnToFace(personTalk2, personTalk1.transform.position),
+                             new Sequence(
+                                 ST_TurnToFace(personTalk1, personTalk2.transform.position),
+                                 ST_TurnToFace(personTalk2, personTalk1.transform.position),
 
-                 new SequenceParallel(
-                 HandGesture(personTalk1,"BEINGCOCKY"),
-                 FaceGesture(personTalk2,"HEADSHAKE")
-                )));
+                                 new SequenceParallel(
+                                 HandGesture(personTalk1,"BEINGCOCKY"),
+                                 FaceGesture(personTalk2,"HEADSHAKE")
+                                )));
+    }
+    //Sitting people
+    protected Node sit(GameObject participant)
+    {
+        return new DecoratorLoop(new Sequence(
+                                participant.GetComponent<BehaviorMecanim>().ST_PlayFaceGesture(name, 4000))));
     }
 }
