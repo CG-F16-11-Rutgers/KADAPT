@@ -17,17 +17,39 @@ public class CrowdInBar : MonoBehaviour {
     public GameObject personTalk2;
     private BehaviorAgent talkingAgent;
 
-	void Start () {
+    //Sitting guy
+    public GameObject sittingGuy1;
+    public GameObject sittingGuy2;
+    private BehaviorAgent sittingAgent;
+
+    //Dancers
+    public GameObject dancer1;
+    public GameObject dancer2;
+    public GameObject dancer3;
+    public GameObject danceTarget;
+    private BehaviorAgent dancingAgent;
+
+    void Start () {
         //Initializing the bartender
-        bartenderBehaviorAgent = new BehaviorAgent(this.walkAroundBar());
+        bartenderBehaviorAgent = new BehaviorAgent(this.WalkAroundBar());
         BehaviorManager.Instance.Register(bartenderBehaviorAgent);
         bartenderBehaviorAgent.StartBehavior();
 
         //Initialize talking people
-        talkingAgent = new BehaviorAgent(this.talk());
+        talkingAgent = new BehaviorAgent(this.Talk());
         BehaviorManager.Instance.Register(talkingAgent);
         talkingAgent.StartBehavior();
-	}
+
+        //Initialize the sitting guy
+        sittingAgent = new BehaviorAgent(this.Sit());
+        BehaviorManager.Instance.Register(sittingAgent);
+        sittingAgent.StartBehavior();
+
+        //Initialize the dancers
+        dancingAgent = new BehaviorAgent(this.DanceForever());
+        BehaviorManager.Instance.Register(dancingAgent);
+        dancingAgent.StartBehavior();
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -59,13 +81,18 @@ public class CrowdInBar : MonoBehaviour {
         Val<string> name = Val.V(() => s);
         return new Sequence(participant.GetComponent<BehaviorMecanim>().ST_PlayFaceGesture(name, 4000));
     }
+    //sit
+    protected Node ST_Sit(GameObject participant)
+    {
+        return new Sequence(new LeafInvoke(() => participant.GetComponent<BehaviorMecanim>().Character.SitDown()));
+    }
 
     /// <summary>
     /// This is where the person actions are defined
     /// </summary>
     /// <returns></returns>
     //Bartender Tree
-    protected Node walkAroundBar()
+    protected Node WalkAroundBar()
     {
         return new DecoratorLoop(new Sequence(
                                  ST_ApproachAndWait(bartender, point1),
@@ -77,7 +104,7 @@ public class CrowdInBar : MonoBehaviour {
                                  ));
     }
     //Two people talking
-    protected Node talk()
+    protected Node Talk()
     {
         return new DecoratorLoop(
                              new Sequence(
@@ -90,9 +117,32 @@ public class CrowdInBar : MonoBehaviour {
                                 )));
     }
     //Sitting people
-    protected Node sit(GameObject participant)
+    protected Node Sit()
     {
-        return new DecoratorLoop(new Sequence(
-                                participant.GetComponent<BehaviorMecanim>().ST_PlayFaceGesture(name, 4000))));
+        return new Sequence(
+                        ST_Sit(sittingGuy1),
+                        ST_Sit(sittingGuy2),
+                        new DecoratorLoop( new Sequence(
+                            FaceGesture(sittingGuy1, "DRINK"),
+                            FaceGesture(sittingGuy2, "DRINK"))));
+    }
+    //Dancers
+    protected Node DanceForever()
+    {
+        return new DecoratorLoop(
+
+            new Sequence(
+                ST_TurnToFace(dancer1, danceTarget.transform.position),
+                ST_TurnToFace(dancer2, danceTarget.transform.position),
+                ST_TurnToFace(dancer3, danceTarget.transform.position),
+
+
+                new SequenceParallel(
+                    new Randomm(HandGesture(dancer1,"SATNIGHTFEVER"),
+                        HandGesture(dancer1, "CLAP")),
+                   new Randomm(HandGesture(dancer2, "SATNIGHTFEVER"),
+                        HandGesture(dancer2, "CLAP")),
+                   new Randomm(HandGesture(dancer3, "SATNIGHTFEVER"),
+                        HandGesture(dancer3, "CLAP")))));
     }
 }
