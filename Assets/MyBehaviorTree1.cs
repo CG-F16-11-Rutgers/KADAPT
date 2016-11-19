@@ -12,6 +12,7 @@ public class MyBehaviorTree1 : MonoBehaviour
     public GameObject red1;
     public GameObject red2;
     public GameObject red3;
+    public GameObject crowd1;
 
     public Transform doorPosition;
 
@@ -22,11 +23,16 @@ public class MyBehaviorTree1 : MonoBehaviour
     public Transform rT2;
     public Transform rT3;
 
+    public GameObject danceT;
+    public GameObject offstage;
+
+    public GameObject door;
+
     private BehaviorAgent behaviorAgent;
 	// Use this for initialization
 	void Start ()
 	{
-		behaviorAgent = new BehaviorAgent (this.BuildTreeRoot ());
+		behaviorAgent = new BehaviorAgent (this.GreenWin());
 		BehaviorManager.Instance.Register (behaviorAgent);
 		behaviorAgent.StartBehavior ();
 	}
@@ -182,5 +188,130 @@ public class MyBehaviorTree1 : MonoBehaviour
         long punchTime = 2000;
         Val<string> name = Val.V(() => "BASH");
         return new Sequence(guy.GetComponent<BehaviorMecanim>().ST_PlayHandGesture(name, punchTime));
+    }
+    protected Node ST_ApproachAndWait(GameObject participant, Transform target)
+    {
+        Vector3 a = (target.position - participant.transform.position).normalized;
+        Val<Vector3> position = Val.V(() => (target.position - a));
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
+    }
+
+    protected Node ST_ApproachAndWait(GameObject participant, GameObject participant2)
+    {
+        Vector3 a = (participant2.transform.position - participant.transform.position).normalized * 1;
+        Vector3 b = new Vector3(a.x, participant2.transform.position.y, a.z);
+
+
+        Val<Vector3> position = Val.V(() => (participant2.transform.position - b));
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position));
+    }
+    protected Node ST_GetCloseTo(GameObject participant, GameObject participant2)
+    {
+        Vector3 a = (participant2.transform.position - participant.transform.position).normalized * 3;
+        Vector3 b = new Vector3(a.x, participant2.transform.position.y, a.z);
+
+
+        Val<Vector3> position = Val.V(() => (participant2.transform.position - b));
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position));
+    }
+ 
+    protected Node ST_Dance(GameObject participan)
+    {
+        Val<String> be = Val.V(() => "BREAKDANCE");
+        return new Sequence(participan.GetComponent<BehaviorMecanim>().ST_PlayBodyGesture(be, 8000), new LeafWait(1000));
+    }
+    protected Node ST_StepBack(GameObject participant)
+    {
+        Val<String> be = Val.V(() => "STEPBACK");
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().ST_PlayBodyGesture(be, 2000), new LeafWait(500));
+    }
+    protected Node ST_CallOver(GameObject participant)
+    {
+        print("x");
+        Val<String> be = Val.V(() => "CALLOVER");
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().ST_PlayHandGesture(be, 1500), new LeafWait(500));
+    }
+    protected Node ST_LookStand(GameObject participant, GameObject participant2)
+    {
+        Vector3 a = new Vector3(0, 2f, 0);
+        Val<Vector3> position = Val.V(() => new Vector3(participant2.transform.position.x, 1.8f, participant2.transform.position.z));
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_HeadLookTurnFirst(position), new LeafWait(500));
+    }
+    
+    protected Node WalkTowards(GameObject participant, GameObject participant2)
+    {
+        return new Sequence(this.ST_LookStand(participant, participant2), this.ST_ApproachAndWait(participant, participant2));
+    }
+    protected Node Gather(GameObject participant, GameObject participant2, GameObject participant3, GameObject target)
+    {
+        return new SequenceParallel(this.WalkTowards(participant, target),
+            new Sequence(this.ST_LookStand(participant2, target), 
+            this.ST_ApproachAndWait(participant2, participant)),
+            new Sequence(this.ST_LookStand(participant3, target),
+            this.ST_ApproachAndWait(participant3, participant2)));
+    }
+    protected Node ST_OpenDoor(GameObject participant)
+    {
+        Val<String> name = Val.V(() => "POINTING");
+        if (door.GetComponent<DoorScript>().isOpen())
+        {
+            return new Sequence();
+        }
+        else
+        {
+            return new Sequence(participant.GetComponent<BehaviorMecanim>().ST_PlayHandGesture(name, 500), new LeafInvoke(() => door.GetComponent<DoorScript>().openDoor()));
+        }
+    }
+    protected Node RedWin()
+    {
+
+        Node winning =
+                        new Sequence(
+                        this.WalkTowards(red1, door),
+                        this.ST_OpenDoor(red1),
+                        this.Gather(red1, red2, red3, danceT),
+                        new SequenceParallel(ST_Dance(red1), ST_Dance(red2), ST_Dance(red3))
+
+
+                        );
+        return winning;
+    }
+    protected Node Kick(GameObject participant)
+    {
+
+        Val<String> name = Val.V(() => "PICKUPLEFT");
+        return participant.GetComponent<BehaviorMecanim>().ST_PlayBodyGesture(name, 3000);
+    }
+
+    protected Node FallDown(GameObject participant)
+    {
+        Val<String> name = Val.V(() => "PICKUPRIGHT");
+        return participant.GetComponent<BehaviorMecanim>().ST_PlayBodyGesture(name, 3000);
+    }
+    protected Node PersonKickInteraction()
+    {
+        return 
+            new SequenceParallel(
+                    this.Kick(green1),
+                     this.FallDown(crowd1)
+
+                    );
+    }
+    protected Node GreenWin()
+    {
+
+        Node winning =
+                        new Randomm(new Sequence(
+                            this.WalkTowards(green1, door),
+                            this.ST_OpenDoor(green1),
+                            this.Gather(green1, green2, green3, danceT),
+                            this.WalkTowards(green1, crowd1),
+                            this.PersonKickInteraction()
+                            ), 
+                            this.Gather(green1, green2, green3, offstage)
+                        
+
+                        );
+        return winning;
     }
 }
