@@ -32,7 +32,7 @@ public class MyBehaviorTree1 : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-		behaviorAgent = new BehaviorAgent (this.GreenWin());
+		behaviorAgent = new BehaviorAgent (this.BuildTreeRoot());
 		BehaviorManager.Instance.Register (behaviorAgent);
 		behaviorAgent.StartBehavior ();
 	}
@@ -126,6 +126,7 @@ public class MyBehaviorTree1 : MonoBehaviour
     {
         Node[] redParas = new Node[fightLength + 1];
         Node[] greenParas = new Node[fightLength + 1];
+        Node win;
 
         for (int a = 0; a < fightLength; a++)
         {
@@ -150,14 +151,16 @@ public class MyBehaviorTree1 : MonoBehaviour
         {
             redParas[fightLength] = performFinishingMove(redGuy);
             greenParas[fightLength] = die(greenGuy);
+            win = this.RedWin();
         }
         else
         {
             redParas[fightLength] = die(redGuy);
             greenParas[fightLength] = performFinishingMove(greenGuy);
+            win = this.GreenWin();
         }
 
-        return new SequenceParallel(new Sequence(redParas), new Sequence(greenParas));
+        return new Sequence(new SequenceParallel(new Sequence(redParas), new Sequence(greenParas)), win);
     }
     private Node performFinishingMove(GameObject guy)
     {
