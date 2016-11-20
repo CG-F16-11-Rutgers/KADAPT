@@ -58,6 +58,7 @@ public class MyBehaviorTree1 : MonoBehaviour
     protected Node BuildTreeRoot()
 	{
         System.Random rnd = new System.Random();
+        Node win;
 
         int winner = rnd.Next(0, 2);
 
@@ -68,6 +69,7 @@ public class MyBehaviorTree1 : MonoBehaviour
             w1 = red1;
             w2 = red2;
             w3 = red3;
+            win = this.RedWin();
         }
         //Green wins
         else
@@ -75,6 +77,7 @@ public class MyBehaviorTree1 : MonoBehaviour
             w1 = green1;
             w2 = green2;
             w3 = green3;
+            win = this.GreenWin();
         }
 
         Node roaming = new DecoratorLoop(
@@ -100,12 +103,12 @@ public class MyBehaviorTree1 : MonoBehaviour
                         createRandomFightInteraction(red3, green3, winner)
                         ),
                         // the winners go to the door
-                        new SequenceParallel(
+                        /*new SequenceParallel(
                             goToTarget(w1, doorPosition),
                             goToTarget(w2, doorPosition),
                             goToTarget(w3, doorPosition)
                             )
-                        ,
+                        ,*/ win,
                         //makes everyone stay IDLE
                         new Sequence(new DecoratorLoop(new LeafWait(1000)))));
         
@@ -126,7 +129,7 @@ public class MyBehaviorTree1 : MonoBehaviour
     {
         Node[] redParas = new Node[fightLength + 1];
         Node[] greenParas = new Node[fightLength + 1];
-        Node win;
+       
 
         for (int a = 0; a < fightLength; a++)
         {
@@ -151,16 +154,16 @@ public class MyBehaviorTree1 : MonoBehaviour
         {
             redParas[fightLength] = performFinishingMove(redGuy);
             greenParas[fightLength] = die(greenGuy);
-            win = this.RedWin();
+            
         }
         else
         {
             redParas[fightLength] = die(redGuy);
             greenParas[fightLength] = performFinishingMove(greenGuy);
-            win = this.GreenWin();
+            
         }
 
-        return new Sequence(new SequenceParallel(new Sequence(redParas), new Sequence(greenParas)), win);
+        return new SequenceParallel(new Sequence(redParas), new Sequence(greenParas));
     }
     private Node performFinishingMove(GameObject guy)
     {
@@ -288,7 +291,7 @@ public class MyBehaviorTree1 : MonoBehaviour
 
     protected Node FallDown(GameObject participant)
     {
-        Val<String> name = Val.V(() => "PICKUPRIGHT");
+        Val<String> name = Val.V(() => "DYING");
         return participant.GetComponent<BehaviorMecanim>().ST_PlayBodyGesture(name, 3000);
     }
     protected Node PersonKickInteraction()

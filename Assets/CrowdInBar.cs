@@ -21,7 +21,6 @@ public class CrowdInBar : MonoBehaviour {
     public GameObject sittingGuy3;
     public GameObject sittingGuy4;
     public GameObject sittingGuy5;
-    public GameObject sittingGuy6;
  
     //Dancers
     public GameObject dancer1;
@@ -113,14 +112,12 @@ public class CrowdInBar : MonoBehaviour {
                         ST_Sit(sittingGuy3),
                         ST_Sit(sittingGuy4),
                         ST_Sit(sittingGuy5),
-                        ST_Sit(sittingGuy6),
                         new DecoratorLoop( new Randomm(
                             FaceGesture(sittingGuy1, "DRINK"),
                             FaceGesture(sittingGuy2, "DRINK"),
                             FaceGesture(sittingGuy3, "DRINK"),
                             FaceGesture(sittingGuy4, "DRINK"),
-                            FaceGesture(sittingGuy5, "DRINK"),
-                            FaceGesture(sittingGuy6, "DRINK"))));
+                            FaceGesture(sittingGuy5, "DRINK"))));
     }
     //Dancers
     protected Node DanceForever()
