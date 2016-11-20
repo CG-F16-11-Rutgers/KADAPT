@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         animator = GetComponent<Animator>();
+        //personDown = false;
 	}
 
     // Update is called once per frame
@@ -41,7 +42,7 @@ public class PlayerController : MonoBehaviour {
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Kick();
+            animator.SetBool("B_PickupLeft", true);
         }
     }
     
@@ -52,21 +53,6 @@ public class PlayerController : MonoBehaviour {
         Debug.DrawRay(attackOrigin.position, fwd, Color.red);
         if (Physics.Raycast(attackOrigin.position, fwd, out hitInfo)) {
             print(hitInfo.collider.gameObject.tag);
-        }
-        transform.position = new Vector3(transform.position.x, 0, transform.position.z);
-    }
-
-    void Kick2()
-    {
-        animator.SetBool("B_PickupLeft", true);
-        RaycastHit hit;
-        Ray kickingRay = new Ray(transform.position, Vector3.forward);
-        if (Physics.Raycast(kickingRay, out hit, float2))
-        {
-            if(hit.collider.tag == "TheKicked")
-            {
-                Debug.Log("Kick Contact");
-            }
         }
         transform.position = new Vector3(transform.position.x, 0, transform.position.z);
     }
