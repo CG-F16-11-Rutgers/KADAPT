@@ -41,5 +41,6 @@ public class PlayerController : MonoBehaviour {
         if (Physics.Raycast(attackOrigin.position, fwd, out hitInfo)) {
             print(hitInfo.collider.gameObject.tag);
         }
+        transform.position = new Vector3(transform.position.x, 0, transform.position.z);
     }
 }
