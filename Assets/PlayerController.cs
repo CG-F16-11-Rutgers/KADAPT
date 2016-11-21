@@ -5,8 +5,10 @@ public class PlayerController : MonoBehaviour {
 
     private Animator animator;
     public Transform attackOrigin;
-    //public float float1;
+    public float float1;
     public float float2;
+
+    public GameObject door;
 
 	// Use this for initialization
 	void Start () {
@@ -22,6 +24,19 @@ public class PlayerController : MonoBehaviour {
 
     void controller()
     {
+        float deltaX = transform.position.x - door.transform.position.x;
+        float deltaZ = transform.position.z - door.transform.position.z;
+        float distance = Mathf.Sqrt(deltaX * deltaX + deltaZ * deltaZ);
+
+
+      //  Debug.Log(distance);
+        if (Input.GetKey(KeyCode.E) && distance<=3.0f)
+        {
+            animator.SetBool("B_PickupRight", true);
+            door.GetComponent<DoorScript>().openDoor();
+            return;
+        }
+
         if (Input.GetKey(KeyCode.LeftShift))
         {
             speedMul = Mathf.Lerp(speedMul, 6.01f, 0.1f);
@@ -46,15 +61,6 @@ public class PlayerController : MonoBehaviour {
         }
     }
     
-    void Kick() {
-        animator.SetBool("B_PickupLeft", true);
-        Vector3 fwd = transform.TransformDirection(Vector3.forward);
-        RaycastHit hitInfo;
-        Debug.DrawRay(attackOrigin.position, fwd, Color.red);
-        if (Physics.Raycast(attackOrigin.position, fwd, out hitInfo)) {
-            print(hitInfo.collider.gameObject.tag);
-        }
-        transform.position = new Vector3(transform.position.x, 0, transform.position.z);
-    }
+    
 
 }
